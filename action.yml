@@ -4,6 +4,9 @@ inputs:
   paths: # one or more paths
     description: "Paths to detect changes"
     required: true
+  lsc:
+    description: "Last successful commit"
+    required: false
 outputs:
   changed:
     description: "Boolean indicating if the paths were changed in previous commit"
