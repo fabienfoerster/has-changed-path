@@ -1,41 +1,38 @@
-const exec = require('@actions/exec')
+const exec = require("@actions/exec");
 
-async function main(pathsToSearch = '') {
-  throwsForInvalidPaths(pathsToSearch)
+async function main(pathsToSearch = "", lastSuccessfulCommit = "HEAD~1") {
+  throwsForInvalidPaths(pathsToSearch);
 
-  return hasChanged(pathsToSearch)
+  return hasChanged(pathsToSearch, lastSuccessfulCommit);
 }
 
 function throwsForInvalidPaths(pathsToSearch) {
-  if (pathsToSearch && typeof pathsToSearch === 'string') return
-  throw new Error('pathsToSearch needs to be a string')
+  if (pathsToSearch && typeof pathsToSearch === "string") return;
+  throw new Error("pathsToSearch needs to be a string");
 }
 
 function getCWD() {
-  const { GITHUB_WORKSPACE = '.', SOURCE = '.' } = process.env
-  return `${GITHUB_WORKSPACE}/${SOURCE}`
+  const { GITHUB_WORKSPACE = ".", SOURCE = "." } = process.env;
+  return `${GITHUB_WORKSPACE}/${SOURCE}`;
 }
 
-async function hasChanged(pathsToSearch) {
-  const paths = pathsToSearch.split(' ')
+async function hasChanged(pathsToSearch, lastSuccessfulCommit) {
+  const paths = pathsToSearch.split(" ");
 
   //  --quiet: exits with 1 if there were differences (https://git-scm.com/docs/git-diff)
-  const exitCode = await exec.exec('git', [
-    'diff',
-    '--quiet',
-    'HEAD~1',
-    'HEAD',
-    '--',
-    ...paths,
-  ], {
-    ignoreReturnCode: true,
-    silent: false,
-    cwd: getCWD()
-  })
+  const exitCode = await exec.exec(
+    "git",
+    ["diff", "--quiet", lastSuccessfulCommit, "HEAD", "--", ...paths],
+    {
+      ignoreReturnCode: true,
+      silent: false,
+      cwd: getCWD(),
+    }
+  );
 
-  const pathsChanged = exitCode === 1
+  const pathsChanged = exitCode === 1;
 
-  return pathsChanged
+  return pathsChanged;
 }
 
-module.exports = main
+module.exports = main;
